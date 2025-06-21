@@ -48,12 +48,13 @@ body {
     background-position: 0% 0%;
   }
   100% {
-    background-position: -1200px 400px;
+    background-position: -1300px 400px;
   }
 }
 .background-overlay {
+  box-sizing: border-box;
   width: 100dvw;
   height: 100dvh;
-  background-color: #fff;
-  opacity: 0.7;
+  padding: 40px;
+  background-color: rgba(20, 28, 48, 0.6);
 }
