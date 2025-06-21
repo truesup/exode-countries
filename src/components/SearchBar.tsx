@@ -28,6 +28,7 @@ const SearchBar = () => {
         fullWidth
         variant="standard"
         placeholder="Enter country name or code..."
+        autoComplete="off"
         value={inputValue}
         onChange={e => setInputValue(e.target.value)}
         InputProps={{ disableUnderline: true, sx: { color: 'white' } }}

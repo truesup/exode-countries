@@ -42,9 +42,12 @@ const CountriesSection = () => {
         backgroundColor: 'rgba(20, 28, 48, 0.95)',
         overflowY: 'scroll',
       }}>
-      <Grid container spacing={2} columns={{ xs: 4, sm: 8, md: 12 }}>
+      <Grid
+        container
+        spacing={2}
+        columns={{ xs: 6, sm: 6, md: 12, lg: 12, xl: 16 }}>
         {countriesList.map((country, ind) => (
-          <Grid key={ind} size={{ xs: 12, sm: 12, md: 4 }}>
+          <Grid key={ind} size={{ xs: 6, sm: 6, md: 6, lg: 4, xl: 4 }}>
             <CountryCard
               flag={country.emoji}
               name={country.name}

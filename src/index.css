@@ -65,3 +65,13 @@ body {
   justify-content: center;
   gap: 8px;
 }
+@media (max-width: 1201px) {
+  .background-overlay {
+    padding: 20px 40px;
+  }
+}
+@media (max-width: 901px) {
+  .background-overlay {
+    padding: 16px;
+  }
+}
