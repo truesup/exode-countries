@@ -2,13 +2,15 @@ import { useState, FormEvent } from 'react'
 import { TextField, IconButton, Paper } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 
-const SearchBar = () => {
-  const [inputValue, setInputValue] = useState<string>('')
+interface Props {
+  value: string
+  setValue: (val: string) => void
+}
 
+const SearchBar = ({ value, setValue }: Props) => {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    console.log('submitted:', inputValue)
-    setInputValue('')
+    setValue('')
   }
 
   return (
@@ -29,8 +31,8 @@ const SearchBar = () => {
         variant="standard"
         placeholder="Enter country name or code..."
         autoComplete="off"
-        value={inputValue}
-        onChange={e => setInputValue(e.target.value)}
+        value={value}
+        onChange={e => setValue(e.target.value)}
         InputProps={{ disableUnderline: true, sx: { color: 'white' } }}
         sx={{ ml: 1, flex: 1 }}
       />

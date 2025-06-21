@@ -6,6 +6,10 @@ import { GET_COUNTRIES } from '../graphql/queries'
 import { useEffect, useState } from 'react'
 import CountryCard from './CountryCard'
 
+interface Props {
+  filter: string
+}
+
 interface Country {
   emoji: string
   name: string
@@ -21,7 +25,7 @@ interface Country {
   }[]
 }
 
-const CountriesSection = () => {
+const CountriesSection = ({ filter }: Props) => {
   const { data, loading, error, refetch } = useQuery(GET_COUNTRIES)
 
   const [countriesList, setCountriesList] = useState<Country[]>([])
@@ -31,6 +35,16 @@ const CountriesSection = () => {
       setCountriesList(data?.countries)
     }
   }, [data])
+
+  const filteredCountries = countriesList.filter(country => {
+    if (!filter.trim()) return true
+
+    const name = country.name.toLowerCase()
+    const code = country.code.toLowerCase()
+    const search = filter.toLowerCase()
+
+    return name.includes(search) || code.includes(search)
+  })
 
   return (
     <Paper
@@ -86,7 +100,7 @@ const CountriesSection = () => {
           container
           spacing={2}
           columns={{ xs: 6, sm: 6, md: 12, lg: 12, xl: 16 }}>
-          {countriesList.map((country, ind) => (
+          {filteredCountries.map((country, ind) => (
             <Grid key={ind} size={{ xs: 6, sm: 6, md: 6, lg: 4, xl: 4 }}>
               <CountryCard
                 flag={country.emoji}
