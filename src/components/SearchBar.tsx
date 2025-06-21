@@ -17,11 +17,12 @@ const SearchBar = () => {
       onSubmit={handleSubmit}
       elevation={3}
       sx={{
-        p: 1,
+        width: '100%',
+        p: 2,
         display: 'flex',
         alignItems: 'center',
         borderRadius: 2,
-        backgroundColor: '#141C30',
+        backgroundColor: 'rgba(20, 28, 48, 0.95)',
       }}>
       <TextField
         fullWidth
