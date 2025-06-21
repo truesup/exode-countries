@@ -81,7 +81,7 @@ const CountryCard = ({
     return result.trim() + '...'
   }
 
-  const displayLanguages = (languages: string[], max: number = 2): string => {
+  const displayLanguages = (languages: string[], max: number = 3): string => {
     if (languages.length <= max) return languages.join('/')
     return `${languages.slice(0, max).join('/')}...`
   }

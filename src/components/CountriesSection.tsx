@@ -1,4 +1,6 @@
-import { Paper, Grid } from '@mui/material'
+import { Paper, Grid, Button, Typography } from '@mui/material'
+import RefreshIcon from '@mui/icons-material/Refresh'
+import CircularProgress from '@mui/material/CircularProgress'
 import { useQuery } from '@apollo/client'
 import { GET_COUNTRIES } from '../graphql/queries'
 import { useEffect, useState } from 'react'
@@ -20,7 +22,7 @@ interface Country {
 }
 
 const CountriesSection = () => {
-  const { data, loading, error } = useQuery(GET_COUNTRIES)
+  const { data, loading, error, refetch } = useQuery(GET_COUNTRIES)
 
   const [countriesList, setCountriesList] = useState<Country[]>([])
 
@@ -41,26 +43,65 @@ const CountriesSection = () => {
         borderRadius: 2,
         backgroundColor: 'rgba(20, 28, 48, 0.95)',
         overflowY: 'scroll',
+        ...(loading && { position: 'relative' }),
       }}>
-      <Grid
-        container
-        spacing={2}
-        columns={{ xs: 6, sm: 6, md: 12, lg: 12, xl: 16 }}>
-        {countriesList.map((country, ind) => (
-          <Grid key={ind} size={{ xs: 6, sm: 6, md: 6, lg: 4, xl: 4 }}>
-            <CountryCard
-              flag={country.emoji}
-              name={country.name}
-              capital={country.capital}
-              code={country.code}
-              continent={country.continent.name}
-              phone={country.phone}
-              currency={country.currency}
-              languages={country.languages.map(lang => lang.native)}
-            />
+      {loading && (
+        <CircularProgress
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+          }}
+        />
+      )}
+
+      {error && !loading && (
+        <Grid
+          container
+          direction="column"
+          justifyContent="center"
+          alignItems="center"
+          spacing={2}
+          sx={{ height: '100%' }}>
+          <Grid>
+            <Typography variant="h6" color="white" textAlign="center">
+              Error fetching countries 😓
+            </Typography>
           </Grid>
-        ))}
-      </Grid>
+          <Grid>
+            <Button
+              variant="outlined"
+              startIcon={<RefreshIcon />}
+              onClick={() => refetch()}
+              sx={{ color: 'white', borderColor: 'white' }}>
+              Try again
+            </Button>
+          </Grid>
+        </Grid>
+      )}
+
+      {!loading && !error && (
+        <Grid
+          container
+          spacing={2}
+          columns={{ xs: 6, sm: 6, md: 12, lg: 12, xl: 16 }}>
+          {countriesList.map((country, ind) => (
+            <Grid key={ind} size={{ xs: 6, sm: 6, md: 6, lg: 4, xl: 4 }}>
+              <CountryCard
+                flag={country.emoji}
+                name={country.name}
+                capital={country.capital}
+                code={country.code}
+                continent={country.continent.name}
+                phone={country.phone}
+                currency={country.currency}
+                languages={country.languages.map(lang => lang.native)}
+              />
+            </Grid>
+          ))}
+        </Grid>
+      )}
     </Paper>
   )
 }
