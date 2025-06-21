@@ -1,5 +1,5 @@
 function App() {
-  return <h1>My Application</h1>
+  return <div className="background-overlay"></div>
 }
 
 export default App
