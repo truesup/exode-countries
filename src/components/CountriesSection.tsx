@@ -1,9 +1,14 @@
-import { Paper, Grid, Button, Typography } from '@mui/material'
+import {
+  Paper,
+  Grid,
+  Button,
+  Typography,
+  CircularProgress,
+} from '@mui/material'
 import RefreshIcon from '@mui/icons-material/Refresh'
-import CircularProgress from '@mui/material/CircularProgress'
 import { useQuery } from '@apollo/client'
 import { GET_COUNTRIES } from '../graphql/queries'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 import CountryCard from './CountryCard'
 
 interface Props {
@@ -14,21 +19,17 @@ interface Props {
 interface Country {
   emoji: string
   name: string
-  continent: {
-    name: string
-  }
+  continent: { name: string }
   code: string
   capital: string
   phone: string
   currency: string
-  languages: {
-    native: string
-  }[]
+  languages: { native: string }[]
 }
 
 const CountriesSection = ({ filter, mode }: Props) => {
   const [countriesList, setCountriesList] = useState<Country[]>([])
-  const [visibleCount, setVisibleCount] = useState(12)
+  const [visibleCount, setVisibleCount] = useState(9)
   const [isFetchingMore, setIsFetchingMore] = useState(false)
   const scrollRef = useRef<HTMLDivElement | null>(null)
 
@@ -40,48 +41,41 @@ const CountriesSection = ({ filter, mode }: Props) => {
     }
   }, [data])
 
-  const filteredCountries = countriesList.filter(country => {
-    if (!filter.trim() || !mode) return true
+  const filteredCountries = useMemo(() => {
+    if (!filter.trim() || !mode) return countriesList
 
     const search = filter.toLowerCase()
 
-    if (mode === 'name') {
-      return country.name.toLowerCase().includes(search)
-    }
-
-    if (mode === 'code') {
-      return country.code.toLowerCase().includes(search)
-    }
-
-    return true
-  })
+    return countriesList.filter(country =>
+      mode === 'name'
+        ? country.name.toLowerCase().includes(search)
+        : country.code.toLowerCase().includes(search)
+    )
+  }, [countriesList, filter, mode])
 
   const handleScroll = () => {
     const el = scrollRef.current
     if (!el || isFetchingMore) return
 
     const { scrollTop, scrollHeight, clientHeight } = el
-    const nearBottom = scrollTop + clientHeight >= scrollHeight - 200
+    const isNearBottom = scrollTop + clientHeight >= scrollHeight - 200
 
-    if (nearBottom && visibleCount < filteredCountries.length) {
+    if (isNearBottom && visibleCount < filteredCountries.length) {
       setIsFetchingMore(true)
-
       setTimeout(() => {
-        setVisibleCount(prev => Math.min(prev + 12, filteredCountries.length))
+        setVisibleCount(prev => Math.min(prev + 6, filteredCountries.length))
         setIsFetchingMore(false)
-      }, 600)
+      }, 250)
     }
   }
 
   useEffect(() => {
     const el = scrollRef.current
-    if (el) {
-      el.addEventListener('scroll', handleScroll)
-    }
-    return () => {
-      el?.removeEventListener('scroll', handleScroll)
-    }
-  }, [filteredCountries, visibleCount])
+    if (!el) return
+
+    el.addEventListener('scroll', handleScroll)
+    return () => el.removeEventListener('scroll', handleScroll)
+  }, [filteredCountries.length, visibleCount, isFetchingMore])
 
   return (
     <Paper
@@ -95,7 +89,7 @@ const CountriesSection = ({ filter, mode }: Props) => {
         borderRadius: 2,
         backgroundColor: 'rgba(20, 28, 48, 0.95)',
         overflowY: 'scroll',
-        ...(loading && { position: 'relative' }),
+        position: loading ? 'relative' : 'static',
       }}>
       {loading && (
         <CircularProgress
@@ -110,7 +104,7 @@ const CountriesSection = ({ filter, mode }: Props) => {
         />
       )}
 
-      {error && !loading && (
+      {!loading && error && (
         <Grid
           container
           direction="column"
@@ -119,7 +113,7 @@ const CountriesSection = ({ filter, mode }: Props) => {
           spacing={2}
           sx={{ height: '100%' }}>
           <Grid>
-            <Typography variant="h6" color="white" textAlign="center">
+            <Typography variant="h2" color="white" textAlign="center">
               Error fetching countries 😓
             </Typography>
           </Grid>
@@ -140,8 +134,10 @@ const CountriesSection = ({ filter, mode }: Props) => {
           container
           spacing={2}
           columns={{ xs: 6, sm: 6, md: 12, lg: 12, xl: 16 }}>
-          {filteredCountries.slice(0, visibleCount).map((country, ind) => (
-            <Grid key={ind} size={{ xs: 6, sm: 6, md: 6, lg: 4, xl: 4 }}>
+          {filteredCountries.slice(0, visibleCount).map(country => (
+            <Grid
+              key={country.code}
+              size={{ xs: 6, sm: 6, md: 6, lg: 4, xl: 4 }}>
               <CountryCard
                 flag={country.emoji}
                 name={country.name}
@@ -163,7 +159,7 @@ const CountriesSection = ({ filter, mode }: Props) => {
                 justifyContent: 'center',
                 alignItems: 'center',
               }}>
-              <CircularProgress size={32} sx={{ color: 'white' }} />
+              <CircularProgress size={24} sx={{ color: 'white' }} />
             </Grid>
           )}
         </Grid>

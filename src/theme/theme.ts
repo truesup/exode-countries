@@ -15,18 +15,6 @@ const theme = createTheme({
       fontSize: '1rem',
       fontWeight: 400,
     },
-    body2: {
-      fontSize: '1rem',
-      fontWeight: 400,
-    },
-    subtitle1: {
-      fontSize: '0.875rem',
-      fontWeight: 300,
-    },
-    subtitle2: {
-      fontSize: '0.6rem',
-      fontWeight: 300,
-    },
   },
   breakpoints: {
     values: {

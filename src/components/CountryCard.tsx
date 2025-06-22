@@ -6,13 +6,15 @@ import {
   Typography,
   useTheme,
 } from '@mui/material'
-import LocationCityIcon from '@mui/icons-material/LocationCity'
-import FlagIcon from '@mui/icons-material/Flag'
-import PublicIcon from '@mui/icons-material/Public'
-import PhoneIcon from '@mui/icons-material/Phone'
-import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange'
-import TranslateIcon from '@mui/icons-material/Translate'
-import { useEffect, useState } from 'react'
+import {
+  LocationCity as LocationCityIcon,
+  Flag as FlagIcon,
+  Public as PublicIcon,
+  Phone as PhoneIcon,
+  CurrencyExchange as CurrencyIcon,
+  Translate as TranslateIcon,
+} from '@mui/icons-material'
+import { useEffect, useState, ReactNode, FC } from 'react'
 
 interface Props {
   flag: string
@@ -25,66 +27,53 @@ interface Props {
   languages: string[]
 }
 
-const InfoRow = ({
-  icon,
-  text,
-}: {
-  icon: React.ReactNode
-  text: React.ReactNode
-}) => (
+const InfoRow: FC<{ icon: ReactNode; text: ReactNode }> = ({ icon, text }) => (
   <Stack direction="row" spacing={1} alignItems="center">
     {icon}
     <Typography variant="body1">{text || 'Not found'}</Typography>
   </Stack>
 )
 
-const useIsLargeScreen = (breakpoint: number = 900) => {
-  const [isLargeScreen, setIsLargeScreen] = useState(
+const useIsLargeScreen = (breakpoint: number = 900): boolean => {
+  const [isLarge, setIsLarge] = useState(
     typeof window !== 'undefined' ? window.innerWidth > breakpoint : true
   )
 
   useEffect(() => {
-    const handleResize = () => {
-      setIsLargeScreen(window.innerWidth > breakpoint)
-    }
-
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
+    const onResize = () => setIsLarge(window.innerWidth > breakpoint)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
   }, [breakpoint])
 
-  return isLargeScreen
+  return isLarge
 }
 
-const CountryCard = ({
+const truncate = (text: string, max: number): string => {
+  if (text.length <= max) return text
+  const words = text.split(' ')
+  let result = ''
+  for (const word of words) {
+    if ((result + ' ' + word).trim().length > max) break
+    result += (result ? ' ' : '') + word
+  }
+  return result.trim() + '...'
+}
+
+const formatLanguages = (langs: string[], max = 3): string =>
+  langs.length <= max ? langs.join('/') : `${langs.slice(0, max).join('/')}...`
+
+const CountryCard: FC<Props> = ({
   flag,
   name,
-  capital,
-  code,
   continent,
+  code,
+  capital,
   phone,
   currency,
   languages,
-}: Props) => {
+}) => {
   const theme = useTheme()
-  const isLargeScreen = useIsLargeScreen()
-
-  const truncateByCharLimit = (text: string, maxLength: number): string => {
-    if (text.length <= maxLength) return text
-    const words = text.split(' ')
-    let result = ''
-
-    for (const word of words) {
-      if ((result + (result ? ' ' : '') + word).length > maxLength) break
-      result += (result ? ' ' : '') + word
-    }
-
-    return result.trim() + '...'
-  }
-
-  const displayLanguages = (languages: string[], max: number = 3): string => {
-    if (languages.length <= max) return languages.join('/')
-    return `${languages.slice(0, max).join('/')}...`
-  }
+  const isLarge = useIsLargeScreen()
 
   return (
     <Card
@@ -98,12 +87,8 @@ const CountryCard = ({
       }}>
       <CardHeader
         title={
-          <Typography
-            variant="h6"
-            component="div"
-            fontWeight={600}
-            title={`${flag} ${name}`}>
-            {flag} {isLargeScreen ? truncateByCharLimit(name, 22) : name}
+          <Typography variant="h2" component="div" title={`${flag} ${name}`}>
+            {flag} {isLarge ? truncate(name, 22) : name}
           </Typography>
         }
         sx={{
@@ -126,17 +111,17 @@ const CountryCard = ({
           <InfoRow icon={<FlagIcon sx={{ color: 'gray' }} />} text={code} />
           <InfoRow
             icon={<PhoneIcon sx={{ color: 'gray' }} />}
-            text={phone ? `+${phone}` : null}
+            text={phone && `+${phone}`}
           />
           <InfoRow
-            icon={<CurrencyExchangeIcon sx={{ color: 'gray' }} />}
+            icon={<CurrencyIcon sx={{ color: 'gray' }} />}
             text={currency}
           />
           <InfoRow
             icon={<TranslateIcon sx={{ color: 'gray' }} />}
             text={
               <span title={languages.join(' / ')}>
-                {displayLanguages(languages)}
+                {formatLanguages(languages)}
               </span>
             }
           />
