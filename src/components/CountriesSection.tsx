@@ -8,7 +8,7 @@ import {
 import RefreshIcon from '@mui/icons-material/Refresh'
 import { useQuery } from '@apollo/client'
 import { GET_COUNTRIES } from '../graphql/queries'
-import { useEffect, useRef, useState, useMemo } from 'react'
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import CountryCard from './CountryCard'
 
 interface Props {
@@ -53,7 +53,7 @@ const CountriesSection = ({ filter, mode }: Props) => {
     )
   }, [countriesList, filter, mode])
 
-  const handleScroll = () => {
+  const handleScroll = useCallback(() => {
     const el = scrollRef.current
     if (!el || isFetchingMore) return
 
@@ -67,7 +67,7 @@ const CountriesSection = ({ filter, mode }: Props) => {
         setIsFetchingMore(false)
       }, 250)
     }
-  }
+  }, [isFetchingMore, visibleCount, filteredCountries.length])
 
   useEffect(() => {
     const el = scrollRef.current
@@ -75,7 +75,7 @@ const CountriesSection = ({ filter, mode }: Props) => {
 
     el.addEventListener('scroll', handleScroll)
     return () => el.removeEventListener('scroll', handleScroll)
-  }, [filteredCountries.length, visibleCount, isFetchingMore])
+  }, [handleScroll])
 
   return (
     <Paper

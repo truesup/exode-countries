@@ -1,6 +1,5 @@
 import { TextField, IconButton, Paper, Stack, Button } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import SearchIcon from '@mui/icons-material/Search'
 import { useRef, useEffect } from 'react'
 
 interface Props {
