@@ -8,6 +8,7 @@ import CountryCard from './CountryCard'
 
 interface Props {
   filter: string
+  mode: 'name' | 'code' | null
 }
 
 interface Country {
@@ -25,7 +26,7 @@ interface Country {
   }[]
 }
 
-const CountriesSection = ({ filter }: Props) => {
+const CountriesSection = ({ filter, mode }: Props) => {
   const [countriesList, setCountriesList] = useState<Country[]>([])
   const [visibleCount, setVisibleCount] = useState(12)
   const [isFetchingMore, setIsFetchingMore] = useState(false)
@@ -40,11 +41,19 @@ const CountriesSection = ({ filter }: Props) => {
   }, [data])
 
   const filteredCountries = countriesList.filter(country => {
-    if (!filter.trim()) return true
-    const name = country.name.toLowerCase()
-    const code = country.code.toLowerCase()
+    if (!filter.trim() || !mode) return true
+
     const search = filter.toLowerCase()
-    return name.includes(search) || code.includes(search)
+
+    if (mode === 'name') {
+      return country.name.toLowerCase().includes(search)
+    }
+
+    if (mode === 'code') {
+      return country.code.toLowerCase().includes(search)
+    }
+
+    return true
   })
 
   const handleScroll = () => {
@@ -96,6 +105,7 @@ const CountriesSection = ({ filter }: Props) => {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
+            color: 'white',
           }}
         />
       )}
@@ -153,7 +163,7 @@ const CountriesSection = ({ filter }: Props) => {
                 justifyContent: 'center',
                 alignItems: 'center',
               }}>
-              <CircularProgress size={32} />
+              <CircularProgress size={32} sx={{ color: 'white' }} />
             </Grid>
           )}
         </Grid>

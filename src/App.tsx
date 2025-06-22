@@ -14,7 +14,7 @@ function App() {
         mode={filterMode}
         setMode={setFilterMode}
       />
-      <CountriesSection filter={searchValue} />
+      <CountriesSection filter={searchValue} mode={filterMode} />
     </div>
   )
 }
