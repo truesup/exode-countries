@@ -4,10 +4,16 @@ import SearchBar from './components/SearchBar'
 
 function App() {
   const [searchValue, setSearchValue] = useState('')
+  const [filterMode, setFilterMode] = useState<'name' | 'code' | null>(null)
 
   return (
     <div className="background-overlay">
-      <SearchBar value={searchValue} setValue={setSearchValue} />
+      <SearchBar
+        value={searchValue}
+        setValue={setSearchValue}
+        mode={filterMode}
+        setMode={setFilterMode}
+      />
       <CountriesSection filter={searchValue} />
     </div>
   )

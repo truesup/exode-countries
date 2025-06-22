@@ -3,7 +3,7 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import CircularProgress from '@mui/material/CircularProgress'
 import { useQuery } from '@apollo/client'
 import { GET_COUNTRIES } from '../graphql/queries'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import CountryCard from './CountryCard'
 
 interface Props {
@@ -26,30 +26,59 @@ interface Country {
 }
 
 const CountriesSection = ({ filter }: Props) => {
-  const { data, loading, error, refetch } = useQuery(GET_COUNTRIES)
-
   const [countriesList, setCountriesList] = useState<Country[]>([])
+  const [visibleCount, setVisibleCount] = useState(12)
+  const [isFetchingMore, setIsFetchingMore] = useState(false)
+  const scrollRef = useRef<HTMLDivElement | null>(null)
+
+  const { data, loading, error, refetch } = useQuery(GET_COUNTRIES)
 
   useEffect(() => {
     if (data?.countries) {
-      setCountriesList(data?.countries)
+      setCountriesList(data.countries)
     }
   }, [data])
 
   const filteredCountries = countriesList.filter(country => {
     if (!filter.trim()) return true
-
     const name = country.name.toLowerCase()
     const code = country.code.toLowerCase()
     const search = filter.toLowerCase()
-
     return name.includes(search) || code.includes(search)
   })
+
+  const handleScroll = () => {
+    const el = scrollRef.current
+    if (!el || isFetchingMore) return
+
+    const { scrollTop, scrollHeight, clientHeight } = el
+    const nearBottom = scrollTop + clientHeight >= scrollHeight - 200
+
+    if (nearBottom && visibleCount < filteredCountries.length) {
+      setIsFetchingMore(true)
+
+      setTimeout(() => {
+        setVisibleCount(prev => Math.min(prev + 12, filteredCountries.length))
+        setIsFetchingMore(false)
+      }, 600)
+    }
+  }
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (el) {
+      el.addEventListener('scroll', handleScroll)
+    }
+    return () => {
+      el?.removeEventListener('scroll', handleScroll)
+    }
+  }, [filteredCountries, visibleCount])
 
   return (
     <Paper
       component="section"
       elevation={3}
+      ref={scrollRef}
       sx={{
         p: 2,
         width: '100%',
@@ -61,6 +90,7 @@ const CountriesSection = ({ filter }: Props) => {
       }}>
       {loading && (
         <CircularProgress
+          size={32}
           sx={{
             position: 'absolute',
             top: '50%',
@@ -100,7 +130,7 @@ const CountriesSection = ({ filter }: Props) => {
           container
           spacing={2}
           columns={{ xs: 6, sm: 6, md: 12, lg: 12, xl: 16 }}>
-          {filteredCountries.map((country, ind) => (
+          {filteredCountries.slice(0, visibleCount).map((country, ind) => (
             <Grid key={ind} size={{ xs: 6, sm: 6, md: 6, lg: 4, xl: 4 }}>
               <CountryCard
                 flag={country.emoji}
@@ -114,6 +144,18 @@ const CountriesSection = ({ filter }: Props) => {
               />
             </Grid>
           ))}
+
+          {isFetchingMore && (
+            <Grid
+              sx={{
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <CircularProgress size={32} />
+            </Grid>
+          )}
         </Grid>
       )}
     </Paper>

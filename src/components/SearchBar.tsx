@@ -5,9 +5,11 @@ import SearchIcon from '@mui/icons-material/Search'
 interface Props {
   value: string
   setValue: (val: string) => void
+  mode: 'name' | 'code' | null
+  setMode: (val: 'name' | 'code') => void
 }
 
-const SearchBar = ({ value, setValue }: Props) => {
+const SearchBar = ({ value, setValue, mode, setMode }: Props) => {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setValue('')
