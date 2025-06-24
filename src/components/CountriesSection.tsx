@@ -11,11 +11,6 @@ import { GET_COUNTRIES } from '../graphql/queries'
 import { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import CountryCard from './CountryCard'
 
-interface Props {
-  filter: string
-  mode: 'name' | 'code' | null
-}
-
 interface Country {
   emoji: string
   name: string
@@ -27,31 +22,16 @@ interface Country {
   languages: { native: string }[]
 }
 
-const CountriesSection = ({ filter, mode }: Props) => {
-  const [countriesList, setCountriesList] = useState<Country[]>([])
+const CountriesSection = () => {
   const [visibleCount, setVisibleCount] = useState(9)
   const [isFetchingMore, setIsFetchingMore] = useState(false)
   const scrollRef = useRef<HTMLDivElement | null>(null)
 
   const { data, loading, error, refetch } = useQuery(GET_COUNTRIES)
 
-  useEffect(() => {
-    if (data?.countries) {
-      setCountriesList(data.countries)
-    }
-  }, [data])
+  const countriesList: Country[] = data?.countries || []
 
-  const filteredCountries = useMemo(() => {
-    if (!filter.trim() || !mode) return countriesList
-
-    const search = filter.toLowerCase()
-
-    return countriesList.filter(country =>
-      mode === 'name'
-        ? country.name.toLowerCase().includes(search)
-        : country.code.toLowerCase().includes(search)
-    )
-  }, [countriesList, filter, mode])
+  const filteredCountries = useMemo(() => countriesList, [countriesList])
 
   const handleScroll = useCallback(() => {
     const el = scrollRef.current
@@ -72,7 +52,6 @@ const CountriesSection = ({ filter, mode }: Props) => {
   useEffect(() => {
     const el = scrollRef.current
     if (!el) return
-
     el.addEventListener('scroll', handleScroll)
     return () => el.removeEventListener('scroll', handleScroll)
   }, [handleScroll])

@@ -1,15 +1,12 @@
 import { TextField, IconButton, Paper, Stack, Button } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import { useRef, useEffect } from 'react'
+import SearchIcon from '@mui/icons-material/Search'
+import { useRef, useEffect, useState } from 'react'
 
-interface Props {
-  value: string
-  setValue: (val: string) => void
-  mode: 'name' | 'code' | null
-  setMode: (val: 'name' | 'code' | null) => void
-}
+const SearchBar = () => {
+  const [searchValue, setSearchValue] = useState<string>('')
+  const [mode, setMode] = useState<'name' | 'code' | null>(null)
 
-const SearchBar = ({ value, setValue, mode, setMode }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -41,25 +38,42 @@ const SearchBar = ({ value, setValue, mode, setMode }: Props) => {
     </Stack>
   )
 
-  const renderSearchInput = () => (
-    <>
+  const renderSearchForm = () => (
+    <Paper
+      elevation={0}
+      component="form"
+      onSubmit={e => {
+        e.preventDefault()
+        console.log('submitted')
+      }}
+      sx={{
+        width: '100%',
+        background: 'transparent',
+        display: 'flex',
+        alignItems: 'center',
+      }}>
       <IconButton onClick={() => setMode(null)} sx={{ color: 'white' }}>
         <ArrowBackIcon />
       </IconButton>
+
       <TextField
         inputRef={inputRef}
         variant="standard"
         placeholder={`Enter country ${mode}`}
         autoComplete="off"
-        value={value}
-        onChange={e => setValue(e.target.value)}
+        value={searchValue}
+        onChange={e => setSearchValue(e.target.value)}
+        fullWidth
         InputProps={{
           disableUnderline: true,
           sx: { color: 'white' },
         }}
-        sx={{ ml: 2, flex: 1 }}
+        sx={{ mx: 2, flex: 1 }}
       />
-    </>
+      <IconButton type="submit" sx={{ color: 'white' }}>
+        <SearchIcon />
+      </IconButton>
+    </Paper>
   )
 
   return (
@@ -74,7 +88,7 @@ const SearchBar = ({ value, setValue, mode, setMode }: Props) => {
         borderRadius: 2,
         backgroundColor: 'rgba(20, 28, 48, 0.95)',
       }}>
-      {!mode ? renderModeButtons() : renderSearchInput()}
+      {!mode ? renderModeButtons() : renderSearchForm()}
     </Paper>
   )
 }
