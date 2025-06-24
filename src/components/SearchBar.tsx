@@ -1,9 +1,21 @@
-import { TextField, IconButton, Paper, Stack, Button } from '@mui/material'
+import {
+  TextField,
+  IconButton,
+  Paper,
+  Stack,
+  Button,
+  CircularProgress,
+} from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import SearchIcon from '@mui/icons-material/Search'
 import { useRef, useEffect, useState } from 'react'
 
-const SearchBar = () => {
+interface SearchBarProps {
+  onSearch: (options: { variables: any }) => void
+  searchByNameLoading: boolean
+}
+
+const SearchBar = ({ onSearch, searchByNameLoading }: SearchBarProps) => {
   const [searchValue, setSearchValue] = useState<string>('')
   const [mode, setMode] = useState<'name' | 'code' | null>(null)
 
@@ -14,6 +26,28 @@ const SearchBar = () => {
       inputRef.current.focus()
     }
   }, [mode])
+
+  const normalizeToTitleCase = (input: string) => {
+    return input
+      .trim()
+      .split(/\s+/)
+      .map(word => word[0]?.toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ')
+  }
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const trimmed = searchValue.trim()
+    if (!trimmed || mode !== 'name') return
+
+    const normalized = normalizeToTitleCase(trimmed)
+
+    onSearch({
+      variables: {
+        name: { regex: `.*${normalized}.*` },
+      },
+    })
+  }
 
   const renderModeButtons = () => (
     <Stack
@@ -42,10 +76,7 @@ const SearchBar = () => {
     <Paper
       elevation={0}
       component="form"
-      onSubmit={e => {
-        e.preventDefault()
-        console.log('submitted')
-      }}
+      onSubmit={handleSubmit}
       sx={{
         width: '100%',
         background: 'transparent',
@@ -59,7 +90,7 @@ const SearchBar = () => {
       <TextField
         inputRef={inputRef}
         variant="standard"
-        placeholder={`Enter country ${mode}`}
+        placeholder={`Enter country ${mode} and press Enter`}
         autoComplete="off"
         value={searchValue}
         onChange={e => setSearchValue(e.target.value)}
@@ -70,9 +101,13 @@ const SearchBar = () => {
         }}
         sx={{ mx: 2, flex: 1 }}
       />
-      <IconButton type="submit" sx={{ color: 'white' }}>
-        <SearchIcon />
-      </IconButton>
+      {searchByNameLoading ? (
+        <CircularProgress size={24} sx={{ color: 'white' }} />
+      ) : (
+        <IconButton type="submit" sx={{ color: 'white' }}>
+          <SearchIcon />
+        </IconButton>
+      )}
     </Paper>
   )
 

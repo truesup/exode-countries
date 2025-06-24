@@ -11,6 +11,11 @@ import { GET_COUNTRIES } from '../graphql/queries'
 import { useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import CountryCard from './CountryCard'
 
+interface CountriesSectionProps {
+  searchByNameData: any
+  searchByNameError: any
+}
+
 interface Country {
   emoji: string
   name: string
@@ -22,14 +27,18 @@ interface Country {
   languages: { native: string }[]
 }
 
-const CountriesSection = () => {
+const CountriesSection = ({
+  searchByNameData,
+  searchByNameError,
+}: CountriesSectionProps) => {
   const [visibleCount, setVisibleCount] = useState(9)
   const [isFetchingMore, setIsFetchingMore] = useState(false)
   const scrollRef = useRef<HTMLDivElement | null>(null)
 
   const { data, loading, error, refetch } = useQuery(GET_COUNTRIES)
 
-  const countriesList: Country[] = data?.countries || []
+  const countriesList: Country[] =
+    searchByNameData?.countries ?? data?.countries ?? []
 
   const filteredCountries = useMemo(() => countriesList, [countriesList])
 
