@@ -1,20 +1,20 @@
 {
   "files": {
     "main.css": "/exode-countries/static/css/main.ca90cbd6.css",
-    "main.js": "/exode-countries/static/js/main.b0641657.js",
-    "static/js/580.abf91aaf.chunk.js": "/exode-countries/static/js/580.abf91aaf.chunk.js",
-    "static/js/673.3381a154.chunk.js": "/exode-countries/static/js/673.3381a154.chunk.js",
+    "main.js": "/exode-countries/static/js/main.2030e671.js",
+    "static/js/624.47f364c2.chunk.js": "/exode-countries/static/js/624.47f364c2.chunk.js",
+    "static/js/904.a65e2407.chunk.js": "/exode-countries/static/js/904.a65e2407.chunk.js",
     "static/media/padding-background.jpg": "/exode-countries/static/media/padding-background.366174b87aaef90ba04a.jpg",
     "static/media/Mulish-Medium.woff2": "/exode-countries/static/media/Mulish-Medium.925f09dd3f309be17c9b.woff2",
     "static/media/Mulish-Regular.woff2": "/exode-countries/static/media/Mulish-Regular.201ee19d045d74e719bc.woff2",
     "index.html": "/exode-countries/index.html",
     "main.ca90cbd6.css.map": "/exode-countries/static/css/main.ca90cbd6.css.map",
-    "main.b0641657.js.map": "/exode-countries/static/js/main.b0641657.js.map",
-    "580.abf91aaf.chunk.js.map": "/exode-countries/static/js/580.abf91aaf.chunk.js.map",
-    "673.3381a154.chunk.js.map": "/exode-countries/static/js/673.3381a154.chunk.js.map"
+    "main.2030e671.js.map": "/exode-countries/static/js/main.2030e671.js.map",
+    "624.47f364c2.chunk.js.map": "/exode-countries/static/js/624.47f364c2.chunk.js.map",
+    "904.a65e2407.chunk.js.map": "/exode-countries/static/js/904.a65e2407.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.ca90cbd6.css",
-    "static/js/main.b0641657.js"
+    "static/js/main.2030e671.js"
   ]
 }
