@@ -8,12 +8,12 @@ import {
 import RefreshIcon from '@mui/icons-material/Refresh'
 import { useQuery } from '@apollo/client'
 import { useEffect, useRef, useState, useMemo, useCallback } from 'react'
-
 import { GET_COUNTRIES } from '../graphql/queries'
 import CountryCard from './CountryCard'
+import type { SearchMode } from '../types/search'
 
 interface CountriesSectionProps {
-  searchMode: 'name' | 'code' | null
+  searchMode: SearchMode
   searchData: any
   searchLoading: boolean
   searchError: any
@@ -31,11 +31,6 @@ interface Country {
   languages: { native: string }[]
 }
 
-const INITIAL_VISIBLE_COUNT = 9
-const LOAD_MORE_STEP = 6
-const SCROLL_OFFSET = 200
-const LOADER_COLOR = 'white'
-
 const CountriesSection = ({
   searchMode,
   searchData,
@@ -43,7 +38,7 @@ const CountriesSection = ({
   searchError,
   hasSearchBeenSubmitted,
 }: CountriesSectionProps) => {
-  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT)
+  const [visibleCount, setVisibleCount] = useState(9)
   const [isFetchingMore, setIsFetchingMore] = useState(false)
   const scrollRef = useRef<HTMLDivElement | null>(null)
 
@@ -54,25 +49,25 @@ const CountriesSection = ({
     refetch,
   } = useQuery(GET_COUNTRIES)
 
-  const countriesList: Country[] =
-    searchMode && hasSearchBeenSubmitted
+  const countriesList: Country[] = useMemo(() => {
+    return searchMode && hasSearchBeenSubmitted
       ? searchData?.countries ?? []
       : allCountriesData?.countries ?? []
+  }, [searchMode, hasSearchBeenSubmitted, searchData, allCountriesData])
 
+  // для скролла и лоадера снизу (фейк загрузка)
+  // коллбэк потому что функция передается в зависимости useEffect ниже
   const handleScroll = useCallback(() => {
     const el = scrollRef.current
     if (!el || isFetchingMore) return
 
     const { scrollTop, scrollHeight, clientHeight } = el
-    const isNearBottom =
-      scrollTop + clientHeight >= scrollHeight - SCROLL_OFFSET
+    const isNearBottom = scrollTop + clientHeight >= scrollHeight - 200
 
     if (isNearBottom && visibleCount < countriesList.length) {
       setIsFetchingMore(true)
       setTimeout(() => {
-        setVisibleCount(prev =>
-          Math.min(prev + LOAD_MORE_STEP, countriesList.length)
-        )
+        setVisibleCount(prev => Math.min(prev + 6, countriesList.length))
         setIsFetchingMore(false)
       }, 250)
     }
@@ -94,7 +89,7 @@ const CountriesSection = ({
       justifyContent="center"
       alignItems="center"
       sx={{ height: '100%' }}>
-      <CircularProgress size={32} sx={{ color: LOADER_COLOR }} />
+      <CircularProgress size={32} sx={{ color: 'white' }} />
     </Grid>
   )
 
@@ -167,7 +162,7 @@ const CountriesSection = ({
             justifyContent: 'center',
             alignItems: 'center',
           }}>
-          <CircularProgress size={24} sx={{ color: LOADER_COLOR }} />
+          <CircularProgress size={24} sx={{ color: 'white' }} />
         </Grid>
       )}
     </Grid>
@@ -185,6 +180,7 @@ const CountriesSection = ({
         borderRadius: 2,
         backgroundColor: 'rgba(20, 28, 48, 0.95)',
         overflowY: 'scroll',
+        // для лоадера
         position: showLoading ? 'relative' : 'static',
       }}>
       {showLoading

@@ -1,51 +1,28 @@
 import Typography from '@mui/material/Typography'
 import CountriesSection from './components/CountriesSection'
-import { useLazyQuery } from '@apollo/client'
-import { useState } from 'react'
-import { GET_COUNTRIES_BY_CODE, GET_COUNTRIES_BY_NAME } from './graphql/queries'
 import SearchBar from './components/SearchBar'
+import { useLazyQuery } from '@apollo/client'
+import { useMemo, useState } from 'react'
+import { GET_COUNTRIES_BY_CODE, GET_COUNTRIES_BY_NAME } from './graphql/queries'
+import type { SearchMode } from './types/search'
 
 function App() {
-  const [searchMode, setSearchMode] = useState<'name' | 'code' | null>(null)
-  const [hasSearchBeenSubmitted, setHasSearchBeenSubmitted] =
-    useState<boolean>(false)
+  const [searchMode, setSearchMode] = useState<SearchMode>(null)
+  const [hasSearchBeenSubmitted, setHasSearchBeenSubmitted] = useState(false)
 
-  const [
-    getCountriesByName,
-    {
-      data: searchByNameData,
-      loading: searchByNameLoading,
-      error: searchByNameError,
-    },
-  ] = useLazyQuery(GET_COUNTRIES_BY_NAME)
+  // useLazyQuery для запроса по требованию, а не при монтировании
+  const [getCountriesByName, queryByName] = useLazyQuery(GET_COUNTRIES_BY_NAME)
+  const [getCountriesByCode, queryByCode] = useLazyQuery(GET_COUNTRIES_BY_CODE)
 
-  const [
-    getCountriesByCode,
-    {
-      data: searchByCodeData,
-      loading: searchByCodeLoading,
-      error: searchByCodeError,
-    },
-  ] = useLazyQuery(GET_COUNTRIES_BY_CODE)
+  // триггер - для запуска, резулт - содержит дату, лоадинг, еррор
+  const queries = {
+    name: { trigger: getCountriesByName, result: queryByName },
+    code: { trigger: getCountriesByCode, result: queryByCode },
+  }
 
-  const searchResult =
-    searchMode === 'name'
-      ? {
-          data: searchByNameData,
-          loading: searchByNameLoading,
-          error: searchByNameError,
-        }
-      : searchMode === 'code'
-      ? {
-          data: searchByCodeData,
-          loading: searchByCodeLoading,
-          error: searchByCodeError,
-        }
-      : {
-          data: null,
-          loading: false,
-          error: null,
-        }
+  const currentQuery = useMemo(() => {
+    return searchMode ? queries[searchMode] : null
+  }, [searchMode, queries])
 
   return (
     <div className="background-overlay">
@@ -53,22 +30,21 @@ function App() {
         Countries Explorer — a simple way to search, filter and learn about
         countries, their capitals, currencies and more.
       </Typography>
+
       <SearchBar
         searchMode={searchMode}
         setSearchMode={setSearchMode}
-        onSearch={
-          searchMode === 'name' ? getCountriesByName : getCountriesByCode
-        }
-        searchLoading={searchResult.loading}
+        onSearch={currentQuery?.trigger ?? (() => {})} // заглушка чтобы не вылетала ошибка
+        searchLoading={currentQuery?.result.loading ?? false}
         setHasSearchBeenSubmitted={setHasSearchBeenSubmitted}
       />
 
       <CountriesSection
         searchMode={searchMode}
         hasSearchBeenSubmitted={hasSearchBeenSubmitted}
-        searchData={searchResult.data}
-        searchLoading={searchResult.loading}
-        searchError={searchResult.error}
+        searchData={currentQuery?.result.data ?? null}
+        searchLoading={currentQuery?.result.loading ?? false}
+        searchError={currentQuery?.result.error ?? null}
       />
     </div>
   )
