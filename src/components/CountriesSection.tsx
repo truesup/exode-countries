@@ -13,9 +13,11 @@ import { GET_COUNTRIES } from '../graphql/queries'
 import CountryCard from './CountryCard'
 
 interface CountriesSectionProps {
+  searchMode: any
   searchByNameData: any
   searchByNameLoading: boolean
   searchByNameError: any
+  hasSearchBeenSubmitted: boolean
 }
 
 interface Country {
@@ -35,9 +37,11 @@ const SCROLL_OFFSET = 200
 const LOADER_COLOR = 'white'
 
 const CountriesSection = ({
+  searchMode,
   searchByNameData,
   searchByNameLoading,
   searchByNameError,
+  hasSearchBeenSubmitted,
 }: CountriesSectionProps) => {
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT)
   const [isFetchingMore, setIsFetchingMore] = useState(false)
@@ -51,7 +55,9 @@ const CountriesSection = ({
   } = useQuery(GET_COUNTRIES)
 
   const countriesList: Country[] =
-    searchByNameData?.countries ?? allCountriesData?.countries ?? []
+    searchMode && hasSearchBeenSubmitted
+      ? searchByNameData?.countries ?? []
+      : allCountriesData?.countries ?? []
 
   const handleScroll = useCallback(() => {
     const el = scrollRef.current
@@ -185,7 +191,7 @@ const CountriesSection = ({
         ? renderLoader()
         : showError
         ? renderError()
-        : searchByNameData && searchByNameData.countries?.length === 0
+        : searchMode && hasSearchBeenSubmitted && countriesList.length === 0
         ? renderEmptySearchResult()
         : renderCountries()}
     </Paper>

@@ -11,21 +11,35 @@ import SearchIcon from '@mui/icons-material/Search'
 import { useRef, useEffect, useState } from 'react'
 
 interface SearchBarProps {
+  searchMode: 'name' | 'code' | null
+  setSearchMode: any
   onSearch: (options: { variables: any }) => void
   searchByNameLoading: boolean
+  setHasSearchBeenSubmitted: any
 }
 
-const SearchBar = ({ onSearch, searchByNameLoading }: SearchBarProps) => {
+const SearchBar = ({
+  searchMode,
+  setSearchMode,
+  onSearch,
+  searchByNameLoading,
+  setHasSearchBeenSubmitted,
+}: SearchBarProps) => {
   const [searchValue, setSearchValue] = useState<string>('')
-  const [mode, setMode] = useState<'name' | 'code' | null>(null)
 
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    if (mode && inputRef.current) {
+    if (searchMode && inputRef.current) {
       inputRef.current.focus()
     }
-  }, [mode])
+  }, [searchMode])
+
+  const handleExitSearch = () => {
+    setSearchMode(null)
+    setHasSearchBeenSubmitted(false)
+    setSearchValue('')
+  }
 
   const normalizeToTitleCase = (input: string) => {
     return input
@@ -37,8 +51,11 @@ const SearchBar = ({ onSearch, searchByNameLoading }: SearchBarProps) => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
+    setHasSearchBeenSubmitted(true)
+
     const trimmed = searchValue.trim()
-    if (!trimmed || mode !== 'name') return
+    if (!trimmed || searchMode !== 'name') return
 
     const normalized = normalizeToTitleCase(trimmed)
 
@@ -59,7 +76,7 @@ const SearchBar = ({ onSearch, searchByNameLoading }: SearchBarProps) => {
         <Button
           key={type}
           variant="outlined"
-          onClick={() => setMode(type as 'name' | 'code')}
+          onClick={() => setSearchMode(type as 'name' | 'code')}
           sx={{
             flex: 1,
             color: 'white',
@@ -83,14 +100,14 @@ const SearchBar = ({ onSearch, searchByNameLoading }: SearchBarProps) => {
         display: 'flex',
         alignItems: 'center',
       }}>
-      <IconButton onClick={() => setMode(null)} sx={{ color: 'white' }}>
+      <IconButton onClick={handleExitSearch} sx={{ color: 'white' }}>
         <ArrowBackIcon />
       </IconButton>
 
       <TextField
         inputRef={inputRef}
         variant="standard"
-        placeholder={`Enter country ${mode} and press Enter`}
+        placeholder={`Enter country ${searchMode} and press Enter`}
         autoComplete="off"
         value={searchValue}
         onChange={e => setSearchValue(e.target.value)}
@@ -123,7 +140,7 @@ const SearchBar = ({ onSearch, searchByNameLoading }: SearchBarProps) => {
         borderRadius: 2,
         backgroundColor: 'rgba(20, 28, 48, 0.95)',
       }}>
-      {!mode ? renderModeButtons() : renderSearchForm()}
+      {!searchMode ? renderModeButtons() : renderSearchForm()}
     </Paper>
   )
 }
