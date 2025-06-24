@@ -14,7 +14,7 @@ import {
   CurrencyExchange as CurrencyIcon,
   Translate as TranslateIcon,
 } from '@mui/icons-material'
-import { useEffect, useState, ReactNode, FC } from 'react'
+import { useEffect, useState, ReactNode } from 'react'
 
 interface Props {
   flag: string
@@ -27,7 +27,7 @@ interface Props {
   languages: string[]
 }
 
-const InfoRow: FC<{ icon: ReactNode; text: ReactNode }> = ({ icon, text }) => (
+const InfoRow = ({ icon, text }: { icon: ReactNode; text: ReactNode }) => (
   <Stack direction="row" spacing={1} alignItems="center">
     {icon}
     <Typography variant="body1">{text || 'Not found'}</Typography>
@@ -62,7 +62,7 @@ const truncate = (text: string, max: number): string => {
 const formatLanguages = (langs: string[], max = 3): string =>
   langs.length <= max ? langs.join('/') : `${langs.slice(0, max).join('/')}...`
 
-const CountryCard: FC<Props> = ({
+const CountryCard = ({
   flag,
   name,
   continent,
@@ -71,7 +71,7 @@ const CountryCard: FC<Props> = ({
   phone,
   currency,
   languages,
-}) => {
+}: Props) => {
   const theme = useTheme()
   const isLarge = useIsLargeScreen()
 
