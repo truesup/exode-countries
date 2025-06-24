@@ -14,7 +14,7 @@ interface SearchBarProps {
   searchMode: 'name' | 'code' | null
   setSearchMode: any
   onSearch: (options: { variables: any }) => void
-  searchByNameLoading: boolean
+  searchLoading: boolean
   setHasSearchBeenSubmitted: any
 }
 
@@ -22,7 +22,7 @@ const SearchBar = ({
   searchMode,
   setSearchMode,
   onSearch,
-  searchByNameLoading,
+  searchLoading,
   setHasSearchBeenSubmitted,
 }: SearchBarProps) => {
   const [searchValue, setSearchValue] = useState<string>('')
@@ -52,18 +52,27 @@ const SearchBar = ({
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
+    const trimmed = searchValue.trim()
+    if (!trimmed || !searchMode) return
+
     setHasSearchBeenSubmitted(true)
 
-    const trimmed = searchValue.trim()
-    if (!trimmed || searchMode !== 'name') return
+    if (searchMode === 'name') {
+      const normalized = normalizeToTitleCase(trimmed)
+      onSearch({
+        variables: {
+          name: { regex: `.*${normalized}.*` },
+        },
+      })
+    }
 
-    const normalized = normalizeToTitleCase(trimmed)
-
-    onSearch({
-      variables: {
-        name: { regex: `.*${normalized}.*` },
-      },
-    })
+    if (searchMode === 'code') {
+      onSearch({
+        variables: {
+          code: { regex: `^${trimmed.toUpperCase()}$` },
+        },
+      })
+    }
   }
 
   const renderModeButtons = () => (
@@ -118,7 +127,7 @@ const SearchBar = ({
         }}
         sx={{ mx: 2, flex: 1 }}
       />
-      {searchByNameLoading ? (
+      {searchLoading ? (
         <CircularProgress size={24} sx={{ color: 'white' }} />
       ) : (
         <IconButton type="submit" sx={{ color: 'white' }}>

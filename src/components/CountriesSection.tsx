@@ -13,10 +13,10 @@ import { GET_COUNTRIES } from '../graphql/queries'
 import CountryCard from './CountryCard'
 
 interface CountriesSectionProps {
-  searchMode: any
-  searchByNameData: any
-  searchByNameLoading: boolean
-  searchByNameError: any
+  searchMode: 'name' | 'code' | null
+  searchData: any
+  searchLoading: boolean
+  searchError: any
   hasSearchBeenSubmitted: boolean
 }
 
@@ -38,9 +38,9 @@ const LOADER_COLOR = 'white'
 
 const CountriesSection = ({
   searchMode,
-  searchByNameData,
-  searchByNameLoading,
-  searchByNameError,
+  searchData,
+  searchLoading,
+  searchError,
   hasSearchBeenSubmitted,
 }: CountriesSectionProps) => {
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT)
@@ -56,7 +56,7 @@ const CountriesSection = ({
 
   const countriesList: Country[] =
     searchMode && hasSearchBeenSubmitted
-      ? searchByNameData?.countries ?? []
+      ? searchData?.countries ?? []
       : allCountriesData?.countries ?? []
 
   const handleScroll = useCallback(() => {
@@ -85,8 +85,8 @@ const CountriesSection = ({
     return () => el.removeEventListener('scroll', handleScroll)
   }, [handleScroll])
 
-  const showLoading = searchByNameLoading || allCountriesLoading
-  const showError = searchByNameError || allCountriesError
+  const showLoading = searchLoading || allCountriesLoading
+  const showError = searchError || allCountriesError
 
   const renderLoader = () => (
     <Grid

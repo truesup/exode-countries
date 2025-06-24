@@ -36,3 +36,22 @@ export const GET_COUNTRIES_BY_NAME = gql`
     }
   }
 `
+
+export const GET_COUNTRIES_BY_CODE = gql`
+  query GetCountriesByCode($code: StringQueryOperatorInput) {
+    countries(filter: { code: $code }) {
+      code
+      name
+      phone
+      capital
+      currency
+      languages {
+        native
+      }
+      continent {
+        name
+      }
+      emoji
+    }
+  }
+`

@@ -1,9 +1,9 @@
 import Typography from '@mui/material/Typography'
 import CountriesSection from './components/CountriesSection'
 import { useLazyQuery } from '@apollo/client'
-import { GET_COUNTRIES_BY_NAME } from './graphql/queries'
-import SearchBar from './components/SearchBar'
 import { useState } from 'react'
+import { GET_COUNTRIES_BY_CODE, GET_COUNTRIES_BY_NAME } from './graphql/queries'
+import SearchBar from './components/SearchBar'
 
 function App() {
   const [searchMode, setSearchMode] = useState<'name' | 'code' | null>(null)
@@ -19,6 +19,34 @@ function App() {
     },
   ] = useLazyQuery(GET_COUNTRIES_BY_NAME)
 
+  const [
+    getCountriesByCode,
+    {
+      data: searchByCodeData,
+      loading: searchByCodeLoading,
+      error: searchByCodeError,
+    },
+  ] = useLazyQuery(GET_COUNTRIES_BY_CODE)
+
+  const searchResult =
+    searchMode === 'name'
+      ? {
+          data: searchByNameData,
+          loading: searchByNameLoading,
+          error: searchByNameError,
+        }
+      : searchMode === 'code'
+      ? {
+          data: searchByCodeData,
+          loading: searchByCodeLoading,
+          error: searchByCodeError,
+        }
+      : {
+          data: null,
+          loading: false,
+          error: null,
+        }
+
   return (
     <div className="background-overlay">
       <Typography component="h1" variant="h1" sx={{ display: 'none' }}>
@@ -28,16 +56,19 @@ function App() {
       <SearchBar
         searchMode={searchMode}
         setSearchMode={setSearchMode}
-        onSearch={getCountriesByName}
-        searchByNameLoading={searchByNameLoading}
+        onSearch={
+          searchMode === 'name' ? getCountriesByName : getCountriesByCode
+        }
+        searchLoading={searchResult.loading}
         setHasSearchBeenSubmitted={setHasSearchBeenSubmitted}
       />
+
       <CountriesSection
         searchMode={searchMode}
-        searchByNameData={searchByNameData}
-        searchByNameLoading={searchByNameLoading}
-        searchByNameError={searchByNameError}
         hasSearchBeenSubmitted={hasSearchBeenSubmitted}
+        searchData={searchResult.data}
+        searchLoading={searchResult.loading}
+        searchError={searchResult.error}
       />
     </div>
   )
