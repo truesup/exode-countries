@@ -26,6 +26,7 @@ function App() {
       />
       <CountriesSection
         searchByNameData={searchByNameData}
+        searchByNameLoading={searchByNameLoading}
         searchByNameError={searchByNameError}
       />
     </div>
